@@ -1,0 +1,93 @@
+syntax = "proto3";
+
+package mapper;
+
+// Master-Mapper
+message Point {
+    float x = 1;
+    float y = 2;
+}
+
+message MapRequest {
+    int32 start_index = 1; // Start index for processing data
+    int32 end_index = 2;   // End index for processing data
+    repeated Point centroids = 3;
+    int32 num_mappers=4;
+    int32 num_reducers=5;
+}
+
+
+message MapResponse {
+    bool success = 1;
+}
+
+
+
+
+
+
+// message UpdateCentroidsRequest { //this not used 
+//     repeated Point new_centroids = 1;
+// }
+
+// message UpdateCentroidsResponse { //this not used 
+//     bool success = 1;
+// }
+
+
+
+
+// MASTER-REDUCER
+message KeyValue {
+    int32 key = 1;
+    repeated Point values = 2;
+}
+
+message ReduceRequest {
+    // repeated KeyValue data = 1;
+}
+
+message ReduceResponse {
+    bool success = 1;
+    repeated KeyValue updated_centroids = 2;
+}
+
+
+// Mapper-Reducer
+message PartitionRequest {
+    int32 reducer_id = 1;  // Reducer asking for its partition
+    int32 mapper_id = 2;   // Mapper to fetch from
+}
+
+message PartitionResponse {
+    repeated KeyValue data = 1;
+}
+
+
+service Mapper {
+    rpc ProcessData(MapRequest) returns (MapResponse);
+    // rpc UpdateCentroids(UpdateCentroidsRequest) returns (UpdateCentroidsResponse); //this not used 
+    rpc GetPartition(PartitionRequest) returns (PartitionResponse);
+}
+
+
+// message CentroidResult {
+//     int32 key = 1;
+//     float x = 2;
+//     float y = 3;
+// }
+
+// message CollectResultsRequest {
+    
+// }
+
+// message CollectResultsResponse {
+//     repeated CentroidResult results = 1;
+//     bool success = 2;
+// }
+
+service Reducer {
+    rpc ReduceData(ReduceRequest) returns (ReduceResponse);
+    // rpc SendResults(CollectResultsRequest) returns (CollectResultsResponse);
+}
+
